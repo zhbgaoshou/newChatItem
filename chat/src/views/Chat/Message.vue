@@ -8,14 +8,14 @@ const chatStore = useChatStore();
 
 <template>
   <div
-    class="chat"
+    class="chat my-[10px]"
     v-for="item in chatStore.messageList"
     :class="{
       'chat-start': item.role === 'assistant',
       'chat-end': item.role === 'user',
     }"
   >
-    <div class="chat-bubble" :class="{ 'w-full': item.role === 'assistant' }">
+    <div class="chat-bubble max-w-[97%]">
       <MdPreview
         :modelValue="item.content"
         v-if="item.role === 'assistant'"

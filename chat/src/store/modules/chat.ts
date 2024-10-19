@@ -36,7 +36,7 @@ export const useChatStore = defineStore("chat", () => {
       {
         name: "GPT-4o",
         value: "gpt-4o",
-        description: "免费的不太聪明的模型",
+        description: "最先进的模型",
         icon: chat3,
         active: false,
       },

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // vue
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick, computed } from "vue";
 // 组件
 import Footer from "@/components/Footer/Footer.vue";
 import Message from "./Message.vue";
@@ -12,20 +12,26 @@ import { sendMessageApi } from "@/api/chat";
 //
 import { MdPreview } from "md-editor-v3";
 import "md-editor-v3/lib/preview.css";
+// svg
+import BottomIcon from "@/assets/icons/bottom.svg?component";
 
 const chatStore = useChatStore();
 const userStore = useUserStore();
 
+const chatEndDOM = ref({} as Element);
 let isGenerate = ref(false);
 let generateText = ref("");
+let isBottom = ref(false);
 const controller = new AbortController();
 const signal = controller.signal;
 
-const getMessageList = () => {
-  chatStore.getMessage();
+const getMessageList = async () => {
+  await chatStore.getMessage();
+  await nextTick();
+  toBottom(null);
 };
 
-onMounted(() => {
+onMounted(async () => {
   // TODO: 获取历史消息
   getMessageList();
 });
@@ -40,6 +46,8 @@ const sendHandle = async (content: string) => {
   };
 
   chatStore.addMessage(param);
+  await nextTick();
+  toBottom();
 
   try {
     isGenerate.value = true;
@@ -66,16 +74,40 @@ const sendHandle = async (content: string) => {
     console.log("chat 请求错误" + error);
   }
 };
+
+const toBottom = (option: any = { behavior: "smooth" }) => {
+  chatEndDOM.value?.scrollIntoView(option);
+};
+// 创建页面监听
+
+nextTick(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          isBottom.value = true;
+        } else {
+          isBottom.value = false;
+        }
+      });
+    },
+    {
+      root: null,
+    }
+  );
+
+  observer.observe(chatEndDOM.value);
+});
 </script>
 
 <template>
   <div class="flex flex-col min-h-0 flex-1 justify-between">
-    <div class="flex-1 min-h-0 flex">
-      <div class="flex-1 relative overflow-auto px-[5px]">
+    <div class="flex-1 min-h-0 flex relative">
+      <div class="flex-1 relative overflow-auto">
         <Message />
         <!-- 生成中 -->
         <div class="chat chat-start" v-show="isGenerate || generateText">
-          <div class="chat-bubble flex justify-center items-center">
+          <div class="chat-bubble max-w-[97%] flex justify-center items-center">
             <!-- 加载动画 -->
             <span
               class="loading loading-dots loading-md"
@@ -91,7 +123,16 @@ const sendHandle = async (content: string) => {
             />
           </div>
         </div>
+
+        <span ref="chatEndDOM"></span>
       </div>
+
+      <button
+        class="btn btn-circle absolute bottom-1 right-1 shadow-lg"
+        @click="toBottom()"
+      >
+        <BottomIcon />
+      </button>
     </div>
     <Footer @send="sendHandle" />
   </div>

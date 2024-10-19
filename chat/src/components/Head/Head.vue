@@ -3,7 +3,6 @@ import { useRouter, useRoute } from "vue-router";
 
 // icons import
 import DownIcon from "@/assets/icons/down.svg?component";
-import LogoutIcon from "@/assets/icons/logout.svg?component";
 import SettingIcon from "@/assets/icons/setting.svg?component";
 import LoginIcon from "@/assets/icons/login.svg?component";
 import InfoIcon from "@/assets/icons/info.svg?component";
@@ -24,12 +23,6 @@ const chatStore = useChatStore();
 
 const router = useRouter();
 const route = useRoute();
-
-const handleLogOut = () => {
-  userStore.logout();
-  router.replace("/login");
-  // location.reload()
-};
 
 function toggleModel(item: any) {
   chatStore.toggleModel(item.name);
@@ -62,24 +55,21 @@ function toggleModel(item: any) {
         </div>
         <ul
           tabindex="0"
-          class="dropdown-content menu bg-base-100 border-[1px] border-base-300 rounded-box z-[1] w-max p-2 shadow"
+          class="dropdown-content menu bg-base-100 border-[1px] border-base-300 rounded-box z-[1] w-[240px] p-2 shadow"
         >
           <li v-for="item in chatStore.modelList" @click="toggleModel(item)">
-            <a>
-              <div class="flex items-center">
-                <!-- <component :is="item.icon" class="w-[24px]"></component> -->
-                <div class="mr-[20px]">
-                  <h4 class="text-[16px]">{{ item.name }}</h4>
-                  <p class="text-xs text-accent mt-[5px]">
-                    {{ item.description }}
-                  </p>
-                </div>
-                <component
-                  :is="SucceedIcon"
-                  class="w-[24px]"
-                  v-if="item.active"
-                ></component>
+            <a class="flex justify-between">
+              <div class="mr-[20px]">
+                <h4 class="text-[16px]">{{ item.name }}</h4>
+                <p class="text-xs text-accent mt-[5px]">
+                  {{ item.description }}
+                </p>
               </div>
+              <component
+                :is="SucceedIcon"
+                class="w-[24px]"
+                v-if="item.active"
+              ></component>
             </a>
           </li>
         </ul>
@@ -90,6 +80,7 @@ function toggleModel(item: any) {
     <div class="navbar-center"></div>
     <!-- Head right -->
     <div class="navbar-end">
+      <!-- 设置 -->
       <div class="dropdown dropdown-end mx-[5px]">
         <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-sm">
           <SettingIcon class="w-[18px]" />
@@ -130,33 +121,15 @@ function toggleModel(item: any) {
         </div>
         <ul
           tabindex="0"
-          class="dropdown-content border-base-300 border-[1px] menu bg-base-100 rounded-box z-10 shadow-sm"
+          class="dropdown-content border-base-300 p-0 border-[1px] menu bg-base-100 rounded-box z-10 shadow-sm"
         >
           <!-- 已登陆 -->
           <div v-if="userStore.token">
-            <div class="stats stats-vertical">
-              <div class="stat">
-                <div class="stat-figure text-secondary">
-                  <div class="avatar online placeholder">
-                    <div
-                      class="bg-neutral text-neutral-content w-16 rounded-full"
-                    >
-                      <span class="text-xl font-mono">{{
-                        userStore.firstName
-                      }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="stat-title">Tasks done</div>
-                <div class="stat-desc text-secondary">31 tasks remaining</div>
-                <div class="stat-value">第一天</div>
-              </div>
-            </div>
-            <div class="divider">OR</div>
-            <button class="btn w-full" @click="handleLogOut">
-              退出登录
-              <LogoutIcon class="w-[18px]" />
-            </button>
+            <ul class="menu rounded-box w-max">
+              <li>
+                <a>正在开发ing...</a>
+              </li>
+            </ul>
           </div>
 
           <!-- 未登录 -->
@@ -166,7 +139,7 @@ function toggleModel(item: any) {
               没有登录
             </span>
             <div class="divider">OR</div>
-            <div class="flex justify-end mb-[5px]">
+            <div class="flex justify-end mb-[5px] px-[10px]">
               <button
                 class="btn btn-sm w-full"
                 @click="router.replace('/login')"
