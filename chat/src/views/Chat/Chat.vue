@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // vue
-import { ref, onMounted, nextTick, computed } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 // 组件
 import Footer from "@/components/Footer/Footer.vue";
 import Message from "./Message.vue";
@@ -28,12 +28,31 @@ const signal = controller.signal;
 const getMessageList = async () => {
   await chatStore.getMessage();
   await nextTick();
-  toBottom(null);
+  toBottom(false);
 };
 
 onMounted(async () => {
   // TODO: 获取历史消息
-  getMessageList();
+  await getMessageList();
+  // 创建页面监听
+  nextTick(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            isBottom.value = true;
+          } else {
+            isBottom.value = false;
+          }
+        });
+      },
+      {
+        root: document.getElementById("observer"),
+      }
+    );
+
+    observer.observe(chatEndDOM.value);
+  });
 });
 
 const sendHandle = async (content: string) => {
@@ -78,31 +97,11 @@ const sendHandle = async (content: string) => {
 const toBottom = (option: any = { behavior: "smooth" }) => {
   chatEndDOM.value?.scrollIntoView(option);
 };
-// 创建页面监听
-
-nextTick(() => {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          isBottom.value = true;
-        } else {
-          isBottom.value = false;
-        }
-      });
-    },
-    {
-      root: null,
-    }
-  );
-
-  observer.observe(chatEndDOM.value);
-});
 </script>
 
 <template>
   <div class="flex flex-col min-h-0 flex-1 justify-between">
-    <div class="flex-1 min-h-0 flex relative">
+    <div class="flex-1 min-h-0 flex relative" id="observer">
       <div class="flex-1 relative overflow-auto">
         <Message />
         <!-- 生成中 -->
@@ -124,10 +123,11 @@ nextTick(() => {
           </div>
         </div>
 
-        <span ref="chatEndDOM"></span>
+        <span ref="chatEndDOM" class="block h-1 w-1"></span>
       </div>
 
       <button
+        v-show="!isBottom"
         class="btn btn-circle absolute bottom-1 right-1 shadow-lg"
         @click="toBottom()"
       >

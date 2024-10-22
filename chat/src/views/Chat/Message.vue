@@ -37,4 +37,9 @@ const chatStore = useChatStore();
   padding: 0;
   margin: 0;
 }
+
+.md-editor-preview ol,
+.md-editor-preview ul {
+  padding: 0;
+}
 </style>

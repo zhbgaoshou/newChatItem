@@ -73,7 +73,7 @@ export const useChatStore = defineStore("chat", () => {
   const getMessage = async () => {
     try {
       const res = await getMessageApi();
-      messageList.value = res as any;
+      messageList.value = res.results;
     } catch (error) {
       return Promise.reject("获取历史记录失败");
     }

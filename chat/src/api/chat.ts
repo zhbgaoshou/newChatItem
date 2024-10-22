@@ -12,5 +12,5 @@ export const sendMessageApi = (data: any, signal: AbortSignal) => {
 };
 
 export const getMessageApi = () => {
-  return http.get(`/chat/messages/?user=${userStore.userId}`);
+  return http.get<any, any>(`/chat/messages/?user=${userStore.userId}`);
 };

@@ -12,6 +12,7 @@ import copy
 from datetime import timedelta
 from .models import Room, Message
 from .ser import RoomSerializer, MessageSerializer
+from .pagination import ArticleCursorPagination
 
 
 from django.utils import timezone
@@ -83,10 +84,19 @@ class chatView(APIView):
 
 # Create your views here.
 class MessagesView(ListModelMixin, GenericViewSet):
-    pagination_class = None
+    authentication_classes = []
+    permission_classes = []
+    pagination_class = ArticleCursorPagination
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     filterset_fields = ["user"]
+
+    def list(self, request, *args, **kwargs):
+        # 调用父类的 list 方法获取倒序排列的分页数据
+        response = super().list(request, *args, **kwargs)
+        # 将 response.data 中的 results 部分正序排列
+        response.data["results"].reverse()
+        return response
 
 
 class RoomViewSet(ModelViewSet):
