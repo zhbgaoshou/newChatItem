@@ -1,4 +1,5 @@
 from openai import OpenAI
+from openai import OpenAIError
 
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.decorators import action
@@ -26,29 +27,38 @@ client = OpenAI(
 
 class chatView(APIView):
     def post(self, request):
+        try:
+            data = json.loads(request.body)
+            tip = "You are a helpful assistant."
 
-        data = json.loads(request.body)
-        tip = "You are a helpful assistant."
+            # message
+            message = self.get_message(request.user)
+            message.append(data)
 
-        # message
-        message = self.get_message(request.user)
-        message.append(data)
+            # save user message
+            self.save_message(data)
 
-        # save user message
-        self.save_message(data)
+            completion = client.chat.completions.create(
+                model=data["model"],
+                messages=[{"role": "system", "content": tip}] + message,
+                stream=True,
+            )
 
-        completion = client.chat.completions.create(
-            model=data["model"],
-            messages=[{"role": "system", "content": tip}] + message,
-            stream=True,
-        )
+            response = StreamingHttpResponse(
+                self.event_stream(completion, data), content_type="text/event-stream"
+            )
+            response["Cache-Control"] = "no-cache"
 
-        response = StreamingHttpResponse(
-            self.event_stream(completion, data), content_type="text/event-stream"
-        )
-        response["Cache-Control"] = "no-cache"
-
-        return response
+            return response
+        
+        except OpenAIError as e:
+            print(e)
+            # 返回简化后的 OpenAI 错误信息
+            return Response({"error": "请求错误，请在左边菜单栏联系我或者反馈"}, status=500)
+        
+        except Exception as e:
+            # 捕获其他未知错误
+            return Response({"error": "系统错误，请联系管理员"}, status=500)
 
     def event_stream(self, completion, data):
         ai_content = ""
@@ -80,6 +90,7 @@ class chatView(APIView):
             user_serializer.save()
         else:
             return "请求参数错误，请联系管理员"
+
 
 
 # Create your views here.

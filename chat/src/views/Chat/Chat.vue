@@ -22,6 +22,7 @@ const chatEndDOM = ref({} as Element);
 let isGenerate = ref(false);
 let generateText = ref("");
 let isBottom = ref(false);
+let isStop = ref(false);
 const controller = new AbortController();
 const signal = controller.signal;
 
@@ -65,11 +66,12 @@ const sendHandle = async (content: string) => {
   };
 
   chatStore.addMessage(param);
-  await nextTick();
-  toBottom();
 
   try {
+    isStop.value = true;
     isGenerate.value = true;
+    await nextTick();
+    toBottom();
     const response = await sendMessageApi(param, signal);
     isGenerate.value = false;
     const reader = (response.body as ReadableStream<Uint8Array>).getReader();
@@ -89,13 +91,24 @@ const sendHandle = async (content: string) => {
     };
     chatStore.addMessage(aiMessage);
     generateText.value = "";
+
   } catch (error) {
     console.log("chat 请求错误" + error);
+  }finally {
+    isStop.value = false;
   }
 };
 
 const toBottom = (option: any = { behavior: "smooth" }) => {
   chatEndDOM.value?.scrollIntoView(option);
+};
+
+// 停止生成
+const stopHandle = () => {
+  controller.abort();
+  isStop.value = false;
+  isGenerate.value = false;
+  generateText.value = "";
 };
 </script>
 
@@ -134,6 +147,6 @@ const toBottom = (option: any = { behavior: "smooth" }) => {
         <BottomIcon />
       </button>
     </div>
-    <Footer @send="sendHandle" />
+    <Footer @send="sendHandle" :is-stop="isStop" @stop="stopHandle"/>
   </div>
 </template>
