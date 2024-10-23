@@ -31,7 +31,6 @@ const signal = controller.signal;
 let status = ref(1);
 let flag = ref(false);
 const getMessageList = async () => {
-  console.log("getMessageList");
   await chatStore.getMessage();
 };
 
