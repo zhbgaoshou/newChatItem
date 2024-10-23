@@ -19,9 +19,9 @@ from .pagination import ArticleCursorPagination
 from django.utils import timezone
 
 client = OpenAI(
-    api_key="sk-proj-9o2itm4kQ6Og829XYdIwT3BlbkFJvkEgAhdlebLerToNRaTJ",
-    organization="org-kyDBBnU5JLwO8wNw0SZ4LIIA",
-    project="proj_d41sZ6PH38MHntMoPOSWXx50",
+    api_key="",
+    organization="",
+    project="",
 )
 
 
