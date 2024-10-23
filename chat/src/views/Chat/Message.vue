@@ -15,15 +15,14 @@ const chatStore = useChatStore();
       'chat-end': item.role === 'user',
     }"
   >
-    <div class="chat-bubble max-w-[97%]">
+    <div class="chat-bubble max-w-[97%] rounded-[20px] flex items-center">
       <MdPreview
         :modelValue="item.content"
         v-if="item.role === 'assistant'"
         :autoFoldThreshold="9999"
         :showCodeRowNumber="false"
       />
-
-      <div v-else>{{ item.content }}</div>
+      <div v-else class="overflow-auto user-message">{{ item.content }}</div>
     </div>
   </div>
 </template>
@@ -41,5 +40,11 @@ const chatStore = useChatStore();
 .md-editor-preview ol,
 .md-editor-preview ul {
   padding: 0;
+}
+
+.chat-bubble .user-message {
+  white-space: pre-wrap; /* 保留空格和换行符，文本会在需要时自动换行 */
+  word-wrap: break-word; /* 超长单词在必要时会断开换行 */
+  overflow-wrap: break-word; /* 类似于 word-wrap，在长单词无法放入容器时断行 */
 }
 </style>

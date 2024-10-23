@@ -50,12 +50,14 @@ class chatView(APIView):
             response["Cache-Control"] = "no-cache"
 
             return response
-        
+
         except OpenAIError as e:
             print(e)
             # 返回简化后的 OpenAI 错误信息
-            return Response({"error": "请求错误，请在左边菜单栏联系我或者反馈"}, status=500)
-        
+            return Response(
+                {"error": "请求错误，请在左边菜单栏联系我或者反馈"}, status=500
+            )
+
         except Exception as e:
             # 捕获其他未知错误
             return Response({"error": "系统错误，请联系管理员"}, status=500)
@@ -90,7 +92,6 @@ class chatView(APIView):
             user_serializer.save()
         else:
             return "请求参数错误，请联系管理员"
-
 
 
 # Create your views here.
