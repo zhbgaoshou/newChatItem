@@ -167,7 +167,7 @@ const stopHandle = () => {
         </div>
         <!-- 底部占位 -->
         <span
-          class="block w-1 h-[1px] translate-y-[-50px]"
+          class="block w-1 h-[1px] translate-y-[-100px]"
           ref="chatEndDOM"
         ></span>
       </div>

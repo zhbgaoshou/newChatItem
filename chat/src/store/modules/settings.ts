@@ -29,6 +29,6 @@ export const useSettingsStore = defineStore("settings", () => {
 
   return {
     theme,
-    isFullScreen
+    isFullScreen,
   };
 });
