@@ -136,7 +136,7 @@ const toBottom = useThrottleFn(async () => {
     top: scrollDOM.value.scrollHeight,
     behavior: "smooth",
   });
-}, 200);
+}, 500);
 
 // 停止生成
 const stopHandle = () => {
@@ -162,7 +162,7 @@ const stopHandle = () => {
 
         <!-- 生成中 -->
         <div class="chat chat-start" v-show="isGenerate || generateText">
-          <div class="chat-bubble max-w-[97%] rounded-[20px] flex items-center">
+          <div class="chat-bubble max-w-[97%] rounded-none flex items-center bg-base-100">
             <!-- 加载动画 -->
             <span
               class="loading loading-dots loading-md"
@@ -174,12 +174,14 @@ const stopHandle = () => {
               :modelValue="generateText"
               :showCodeRowNumber="false"
               :codeFoldable="false"
+              preview-theme="github"
+              theme="light"
             />
           </div>
         </div>
         <!-- 底部占位 -->
         <span
-          class="block w-1 h-[1px] translate-y-[-80px]"
+          class="block w-1 h-[1px] translate-y-[-50px]"
           ref="chatEndDOM"
         ></span>
       </div>
