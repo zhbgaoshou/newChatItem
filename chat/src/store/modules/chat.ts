@@ -18,6 +18,7 @@ interface IModel {
 }
 
 interface IMessage {
+  id?: number;
   model?: string;
   content: string;
   role: string;

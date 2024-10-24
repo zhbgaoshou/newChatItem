@@ -1,6 +1,8 @@
 <script setup lang="ts">
 // vue
 import { ref, onMounted, nextTick } from "vue";
+// vueuse
+import { useThrottleFn } from "@vueuse/core";
 // 组件
 import Footer from "@/components/Footer/Footer.vue";
 import Message from "./Message.vue";
@@ -18,18 +20,21 @@ import BottomIcon from "@/assets/icons/bottom.svg?component";
 const chatStore = useChatStore();
 const userStore = useUserStore();
 
+// 用于监听上拉加载
 const chatTopDOM = ref({} as Element);
+// 内容滚动DOM
 const scrollDOM = ref({} as Element);
+// 用于监听是否到底部
 const chatEndDOM = ref({} as Element);
 let isGenerate = ref(false);
 let generateText = ref("");
 let isBottom = ref(false);
 let isStop = ref(false);
-const controller = new AbortController();
-const signal = controller.signal;
+const controller = ref<AbortController | null>(null);
+const signal = ref<AbortSignal | null>(null);
 
-let status = ref(1);
 let flag = ref(false);
+let isOneFetch = ref(true);
 const getMessageList = async () => {
   await chatStore.getMessage();
 };
@@ -40,17 +45,19 @@ onMounted(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(async (entry) => {
+          // 监听上拉
           if (entry.target === chatTopDOM.value) {
             if (entry.isIntersecting) {
               // TODO: 获取历史消息
               await getMessageList();
-              if (status.value === 1) {
+
+              if (isOneFetch.value) {
+                isOneFetch.value = false;
                 toBottom();
-                status.value = 0;
               }
             }
           }
-
+          // 监听到底部
           if (entry.target === chatEndDOM.value) {
             if (flag.value) {
               if (entry.isIntersecting) {
@@ -86,12 +93,15 @@ const sendHandle = async (content: string) => {
   };
 
   chatStore.addMessage(param);
+  // 在每次发送消息时创建新的 AbortController
+  controller.value = new AbortController();
+  signal.value = controller.value.signal;
 
   try {
     isStop.value = true;
     isGenerate.value = true;
     toBottom();
-    const response = await sendMessageApi(param, signal);
+    const response = await sendMessageApi(param, signal.value);
     isGenerate.value = false;
     const reader = (response.body as ReadableStream<Uint8Array>).getReader();
     const textDecoder = new TextDecoder();
@@ -102,7 +112,9 @@ const sendHandle = async (content: string) => {
       let res = textDecoder.decode(value, { stream: true });
       if (res.endsWith("None")) res = res.replace("None", "");
       generateText.value += res;
-      toBottom();
+      if (isBottom.value) {
+        toBottom();
+      }
     }
 
     const aiMessage = {
@@ -112,29 +124,29 @@ const sendHandle = async (content: string) => {
     chatStore.addMessage(aiMessage);
     generateText.value = "";
   } catch (error) {
-    console.log("chat 请求错误" + error);
+    console.log("CHATGPT请求错误:" + error);
   } finally {
     isStop.value = false;
   }
 };
 
-const toBottom = async () => {
+const toBottom = useThrottleFn(async () => {
   await nextTick();
   scrollDOM.value.scrollTo({
     top: scrollDOM.value.scrollHeight,
     behavior: "smooth",
   });
-};
+}, 200);
 
 // 停止生成
 const stopHandle = () => {
-  controller.abort();
+  if (controller.value) {
+    controller.value.abort(); // 使用当前的 controller 中断请求
+  }
   isStop.value = false;
   isGenerate.value = false;
   generateText.value = "";
 };
-
-// 滚动监听(计算是否滚动到底)
 </script>
 
 <template>
@@ -150,7 +162,7 @@ const stopHandle = () => {
 
         <!-- 生成中 -->
         <div class="chat chat-start" v-show="isGenerate || generateText">
-          <div class="chat-bubble max-w-[97%] flex justify-center items-center">
+          <div class="chat-bubble max-w-[97%] rounded-[20px] flex items-center">
             <!-- 加载动画 -->
             <span
               class="loading loading-dots loading-md"
@@ -167,7 +179,7 @@ const stopHandle = () => {
         </div>
         <!-- 底部占位 -->
         <span
-          class="block w-1 h-[1px] translate-y-[-100px]"
+          class="block w-1 h-[1px] translate-y-[-80px]"
           ref="chatEndDOM"
         ></span>
       </div>
