@@ -50,6 +50,7 @@ const router = init_router();
 const userStore = useUserStore(store);
 
 router.beforeEach(async (to, from, next) => {
+  from;
   const token = userStore.token;
   const firstName = userStore.firstName;
 

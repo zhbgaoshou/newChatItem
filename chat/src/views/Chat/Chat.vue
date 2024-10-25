@@ -9,6 +9,7 @@ import Message from "./Message.vue";
 // store
 import { useChatStore } from "@/store/modules/chat";
 import { useUserStore } from "@/store/modules/user";
+import { useSettingsStore } from "@/store/modules/settings";
 // api
 import { sendMessageApi } from "@/api/chat";
 //
@@ -19,6 +20,7 @@ import BottomIcon from "@/assets/icons/bottom.svg?component";
 
 const chatStore = useChatStore();
 const userStore = useUserStore();
+const settingsStore = useSettingsStore();
 
 // 用于监听上拉加载
 const chatTopDOM = ref({} as Element);
@@ -155,17 +157,19 @@ const stopHandle = () => {
       <div class="flex-1 relative overflow-auto" ref="scrollDOM">
         <!-- 上拉加载 -->
         <div ref="chatTopDOM" class="w-full flex justify-center">
-          <span class="loading loading-spinner loading-sm"></span>
+          <!-- <span class="loading loading-spinner loading-sm"></span> -->
         </div>
 
         <Message />
 
         <!-- 生成中 -->
         <div class="chat chat-start" v-show="isGenerate || generateText">
-          <div class="chat-bubble max-w-[97%] rounded-none flex items-center bg-base-100">
+          <div
+            class="chat-bubble max-w-[97%] rounded-none flex items-center bg-base-100"
+          >
             <!-- 加载动画 -->
             <span
-              class="loading loading-dots loading-md"
+              class="loading loading-dots loading-md text-base-content"
               v-if="isGenerate"
             ></span>
             <!-- 文本 -->
@@ -175,7 +179,7 @@ const stopHandle = () => {
               :showCodeRowNumber="false"
               :codeFoldable="false"
               preview-theme="github"
-              theme="light"
+              :theme="settingsStore.isDark ? 'dark' : 'light'"
             />
           </div>
         </div>
@@ -188,7 +192,7 @@ const stopHandle = () => {
 
       <button
         v-show="!isBottom"
-        class="btn btn-circle absolute bottom-1 right-1 shadow-lg"
+        class="btn btn-circle absolute bottom-1 right-5 shadow-lg"
         @click="toBottom()"
       >
         <BottomIcon />

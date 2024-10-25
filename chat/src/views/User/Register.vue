@@ -3,11 +3,14 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 import { useUserStore } from "@/store/modules/user";
+import { useSettingsStore } from "@/store/modules/settings";
+
 import { useHttp } from "@/hooks/useHttp";
 import QIcon from "@/assets/icons/x.svg?component";
 
 const router = useRouter();
 const userStore = useUserStore();
+const settingsStore = useSettingsStore();
 
 userStore.resetFormData();
 
@@ -51,7 +54,10 @@ const handleRegister = async () => {
     </div>
   </div>
 
-  <div class="hero bg-base-200 h-full">
+  <div
+    class="hero bg-base-200 h-full"
+    :data-theme="settingsStore.isDark ? 'dark' : 'light'"
+  >
     <div class="hero-content flex-col lg:flex-row-reverse">
       <div class="text-center lg:text-left">
         <h1 class="text-5xl font-bold">现在注册吧!</h1>

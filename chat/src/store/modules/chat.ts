@@ -5,6 +5,8 @@ import { ref, watch, computed } from "vue";
 import { setStorage, getStorage } from "@/utils/storage";
 // api
 import { getMessageApi } from "@/api/chat";
+//
+import { useUserStore } from "./user";
 
 // 图标
 import chat3 from "@/assets/icons/chat3.5.svg?component";
@@ -15,6 +17,7 @@ interface IModel {
   icon: any;
   active: boolean;
   value: string;
+  isSupper: boolean;
 }
 
 interface IMessage {
@@ -25,6 +28,8 @@ interface IMessage {
 }
 
 export const useChatStore = defineStore("chat", () => {
+  const userStore = useUserStore();
+
   const modelList = ref<IModel[]>(
     getStorage("modelList") || [
       {
@@ -72,6 +77,7 @@ export const useChatStore = defineStore("chat", () => {
   };
 
   const getMessage = async () => {
+    if (!userStore.token) return;
     try {
       const res = await getMessageApi();
       messageList.value = res.results;

@@ -1,34 +1,21 @@
 import { defineStore } from "pinia";
-import { ref, computed, watch } from "vue";
-import { getStorage, setStorage } from "@/utils/storage";
-import { setTheme } from "@/utils/theme";
-
-const initialWidthFullScreen = getStorage("isWidthFullScreen");
-const initialDarkMode = getStorage("isDarkMode");
+import { ref, watch } from "vue";
+import { setStorage, getStorage } from "@/utils/storage";
 
 export const useSettingsStore = defineStore("settings", () => {
-  let isDarkMode = ref(initialDarkMode || false);
-  let isFullScreen = ref(initialWidthFullScreen || false);
-
-  const theme = computed({
-    get: () => {
-      setTheme(isDarkMode.value);
-      return isDarkMode.value;
-    },
-    set: (value) => {
-      setTheme(value);
-      setStorage("isDarkMode", value);
-    },
-  });
-
+  let isFullScreen = ref(true);
+  let isDark = ref(getStorage("isDark") || false);
 
   watch(isFullScreen, (value) => {
     setStorage("isWidthFullScreen", value);
   });
 
+  watch(isDark, (value) => {
+    setStorage("isDark", value);
+  });
 
   return {
-    theme,
     isFullScreen,
+    isDark,
   };
 });

@@ -6,6 +6,13 @@
     height: 100%;
 }
 
+@font-face {
+  font-family: 'Monaco';
+  src: url('./assets/fonts/Monaco.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 #layout{
     margin: auto;
     border-left: 1px solid oklch(var(--b3));

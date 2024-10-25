@@ -57,11 +57,15 @@ function toggleModel(item: any) {
           tabindex="0"
           class="dropdown-content menu bg-base-100 border-[1px] border-base-300 rounded-box z-[1] w-[240px] p-2 shadow"
         >
-          <li v-for="item in chatStore.modelList" @click="toggleModel(item)">
+          <li
+            v-for="item in chatStore.modelList"
+            @click="toggleModel(item)"
+            :class="{ 'disabled pointer-events-none': item.name !== 'GPT-3.5' }"
+          >
             <a class="flex justify-between">
               <div class="mr-[20px]">
                 <h4 class="text-[16px]">{{ item.name }}</h4>
-                <p class="text-xs text-accent mt-[5px]">
+                <p class="text-xs mt-[5px]">
                   {{ item.description }}
                 </p>
               </div>
@@ -81,21 +85,18 @@ function toggleModel(item: any) {
     <!-- Head right -->
     <div class="navbar-end">
       <!-- 设置 -->
-      <div class="dropdown dropdown-end mx-[5px]">
-        <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-sm">
+      <div class="dropdown dropdown-end">
+        <div
+          tabindex="0"
+          role="button"
+          class="btn btn-circle btn-sm btn-ghost hidden md:flex"
+        >
           <SettingIcon class="w-[18px]" />
         </div>
         <ul
           tabindex="0"
           class="dropdown-content menu bg-base-100 border-[1px] border-base-300 rounded-box z-[1] w-60 p-2 shadow"
         >
-          <li>
-            <a class="flex justify-between">
-              暗夜模式
-              <ToggleTheme />
-            </a>
-          </li>
-
           <li class="hidden md:block">
             <a class="flex justify-between">
               全屏宽
@@ -108,6 +109,10 @@ function toggleModel(item: any) {
           </li>
         </ul>
       </div>
+
+      <button class="btn btn-circle btn-ghost btn-sm mr-[5px]">
+        <ToggleTheme />
+      </button>
 
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-circle btn-sm">
@@ -155,4 +160,9 @@ function toggleModel(item: any) {
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped>
+.pointer-events-none {
+  pointer-events: none;
+  cursor: none;
+}
+</style>

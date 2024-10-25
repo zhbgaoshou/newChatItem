@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useChatStore } from "@/store/modules/chat";
+import { useSettingsStore } from "@/store/modules/settings";
+
 import { MdPreview } from "md-editor-v3";
 import "md-editor-v3/lib/preview.css";
 
@@ -11,11 +13,12 @@ import CopyIcon from "@/assets/icons/copy.svg?component";
 
 import { useThrottleFn } from "@vueuse/core";
 
-
 // bus
 import bus from "@/utils/bus";
 
 const chatStore = useChatStore();
+const settingsStore = useSettingsStore();
+
 // let isCopy = ref(false);
 const copyText = ref("复制");
 
@@ -23,7 +26,7 @@ const rewriteText = (text: string) => {
   bus.emit("rewrite", text);
 };
 
-const onCopy = useThrottleFn( (text: string) => {
+const onCopy = useThrottleFn((text: string) => {
   // 先检查 navigator.clipboard 是否存在
   if (navigator.clipboard) {
     navigator.clipboard
@@ -44,7 +47,7 @@ const onCopy = useThrottleFn( (text: string) => {
     copyText.value = "复制成功";
     handleCopyState();
   }
-},2000)
+}, 1000);
 
 // 备用方法：使用 textarea 和 execCommand 进行复制
 const fallbackCopyTextToClipboard = (text: string) => {
@@ -67,13 +70,11 @@ const fallbackCopyTextToClipboard = (text: string) => {
 const handleCopyState = () => {
   setTimeout(() => {
     copyText.value = "复制";
-  }, 2000);
+  }, 1000);
 };
-
 </script>
 
 <template>
-
   <div
     class="chat"
     v-for="item in chatStore.messageList"
@@ -83,31 +84,42 @@ const handleCopyState = () => {
       'chat-end': item.role === 'user',
     }"
   >
-    <div class="chat-bubble max-w-[97%] rounded-[20px] flex items-center bg-base-200" :class="{ '!bg-base-100': item.role === 'assistant' }">
+    <div
+      class="chat-bubble max-w-[97%] rounded-[20px] flex items-center"
+      :class="{ '!bg-base-100': item.role === 'assistant' }"
+    >
       <MdPreview
         :modelValue="item.content"
         v-if="item.role === 'assistant'"
         :autoFoldThreshold="9999"
         :showCodeRowNumber="false"
         preview-theme="github"
-        theme="light"
+        :theme="settingsStore.isDark ? 'dark' : 'light'"
       />
-      <div v-else class="overflow-auto user-message">{{ item.content }}</div>
+      <div v-else class="user-message overflow-auto">
+        {{ item.content }}
+      </div>
     </div>
 
     <div class="chat-footer mx-[10px]">
-      <div v-if="item.role === 'assistant'" class="-translate-y-[20px] translate-x-[8px]">
-        <div class="tooltip tooltip-bottom tooltip-base-200" :data-tip="copyText">
+      <div
+        v-if="item.role === 'assistant'"
+        class="-translate-y-[20px] translate-x-[8px]"
+      >
+        <div
+          class="tooltip tooltip-bottom tooltip-base-200"
+          :data-tip="copyText"
+        >
           <CopyIcon
-            class="w-[20px] cursor-pointer opacity-50"
+            class="w-[20px] cursor-pointer opacity-80"
             @click="onCopy(item.content)"
           />
         </div>
       </div>
       <div v-else>
-        <div class="tooltip tooltip-bottom tooltip-base-200" data-tip="重写">
+        <div class="tooltip tooltip-bottom tooltip-base-200" data-tip="编辑">
           <RewriteIcon
-            class="w-[20px] cursor-pointer opacity-50"
+            class="w-[20px] cursor-pointer opacity-80"
             @click="rewriteText(item.content)"
           />
         </div>
@@ -135,8 +147,16 @@ const handleCopyState = () => {
   word-break: normal; /* 类似于 word-wrap，在长单词无法放入容器时断行 */
 }
 
-.chat-bubble:before{
+.chat-bubble:before {
   content: "";
   display: none;
+}
+
+.md-editor-preview .md-editor-code pre code {
+  font-family: "Monaco";
+}
+
+.md-editor-preview code {
+  font-size: 0.85em;
 }
 </style>

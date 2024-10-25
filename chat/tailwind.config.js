@@ -7,12 +7,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        wenkai: ["WenKai Mono"],
+        wenkai: ["WenKai Mono", "sans-serif"],
       },
     },
   },
   plugins: [require("@tailwindcss/typography"), daisyui],
   daisyui: {
-    themes: ["wireframe", "black"],
+    themes: false,
   },
 };
