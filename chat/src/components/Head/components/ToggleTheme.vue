@@ -12,7 +12,7 @@ const settingsStore = useSettingsStore();
       type="checkbox"
       class="theme-controller"
       v-model="settingsStore.isDark"
-      value="dark"
+      value="black"
     />
 
     <!-- sun icon -->

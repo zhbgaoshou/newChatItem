@@ -13,6 +13,6 @@ export default {
   },
   plugins: [require("@tailwindcss/typography"), daisyui],
   daisyui: {
-    themes: false,
+    themes: ["light", "dark", "black"],
   },
 };

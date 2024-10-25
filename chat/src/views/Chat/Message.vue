@@ -86,7 +86,10 @@ const handleCopyState = () => {
   >
     <div
       class="chat-bubble max-w-[97%] rounded-[20px] flex items-center"
-      :class="{ '!bg-base-100': item.role === 'assistant' }"
+      :class="{
+        '!bg-base-100': item.role === 'assistant',
+        'chat-bubble-accent': item.role === 'user',
+      }"
     >
       <MdPreview
         :modelValue="item.content"
